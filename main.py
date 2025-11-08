@@ -1,18 +1,23 @@
 import math
-from mini_np import Tensor
+from torch_mini import Tensor
 
 def main():
     print("Hello from lstm-from-scratch!")
-    a = Tensor.randn((2,4), 0, 1)
-    b = Tensor.randn((2,4), 100, 1)
-    c = Tensor(1)
-    print(c.shape)
+    A = Tensor.randn((2,4), 0, 1)
+    B = Tensor.randn((2,4), 100, 1)
     
-    print(a + b)
-    # print(a)
+    print("A and B")
+    print(A)
+    print()
+    print(B)
+    print("---")
+    
+    print("A + B")
+    print(repr(A + B))
     # d = Tensor.zeros((1, 2, 3))
-    # idx = [0, 3]
-    # print(f"at idx{idx}: {a[*idx]}")
+    print("---")
+    idx = [0, 3]
+    print(f"at idx{idx}: {A[idx]}")
     # yikes i am nearly out of lines...
 
 class FCC:

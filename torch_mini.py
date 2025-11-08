@@ -62,13 +62,23 @@ class Tensor:
         return Tensor.fill(shape, 0)
 
     def __getitem__(self, key):
-        if isinstance(key, (list, tuple)): # e.g. [1, 5, 5]
-            if len(key) > 1:
-                return self.__getitem__(key[:-1])[key[-1]]
-            else:
-                return self.__getitem__(key[-1])
+        cur_list = self.data
+        if isinstance(key, (list, tuple)):
+            for idx in key[:-1]:
+                cur_list = cur_list[idx] # go down a level
         else:
-            return Tensor(self.data.__getitem__(key))
+            key = [key]
+        return cur_list[key[-1]]
+
+    def __setitem__(self, key : int | list | tuple, data):
+        """key can be a single idx or list of values"""
+        cur_list = self.data
+        if isinstance(key, (list, tuple)):
+            for idx in key[:-1]: # exclude last one
+                cur_list = cur_list[idx] # go down a level
+        else:
+            key = [key]
+        cur_list[key[-1]] = data # final assignment
 
     def copy(self):
         copy_t = Tensor(self.data)
@@ -77,6 +87,9 @@ class Tensor:
 
     def __str__(self):
         return f"tensor{self.data}"
+
+    def __repr__(self):
+        return f"tensor({self.data}, shape={tuple(self.shape)})"
 
     @staticmethod
     def _gen_idx(shape):
@@ -92,11 +105,13 @@ class Tensor:
 
     def __add__(self, other):
         assert self.shape == other.shape, "add: shape mismatch of tensors"
-        if self.shape == [1]: # constant
-            return Tensor(self.data + other.data)
-        for idx in Tensor._gen_idx(self.shape):
-            # THIS LINE DOESN'T WORK
-            self.__getitem__(idx) = self.__getitem__(idx) + other.__getitem__(idx)
+        self_copy = self.copy()
+        if self_copy.shape == [1]: # constant
+            return Tensor(self_copy.data + other.data)
+        for idx in Tensor._gen_idx(self_copy.shape):
+            data = self_copy.__getitem__(idx) + other.__getitem__(idx)
+            self_copy.__setitem__(idx, data)
+        return self_copy
 
     @staticmethod
     def dot_product(A : list, B: list) -> int | float:
